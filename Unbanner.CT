@@ -11,6 +11,8 @@ UDF1.Width = 488
 UDF1.Show()
 
 function UDF1_CEButton1Click(sender)
+-- Listbox add script \/\/\/
+-- if you want, you can change the UDF1.CEListBox1 to your listbox name.
 HKCU1 = io.popen('reg query HKCU'):read('a'):sub(2, -2)
 HKCU2 = io.popen('reg query HKCU\\Software\\Microsoft'):read('a'):sub(2, -2)
 
@@ -99,6 +101,7 @@ os.execute(os.getenv('temp')..'\\mac.bat')
 os.remove(os.getenv('temp')..'\\mac.bat')
 UDF1.CEListBox1.Items.Add('Successfully Randomized Mac Address!')
 UDF1.CEListBox1.Items.Add('Unban Successful! Please connect to a VPN or wait 2 hours.')
+---
 end
 
 function UDF1_CELabel3Click(sender)
