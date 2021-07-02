@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="34">
+  <Forms>
+    <UDF1 Class="TCEForm" Encoding="Ascii85">y[3(x):Zgr-6T!Yv._R4oQU9t5E@U{LqbAnw+HXHR!9N?shXVBX^_YN/}XqK$h}*NNbt_W9dRbJ)??ZmIB}Mydw%cx-bc=+GyweRV8](=!vST9790#7Y7-Q5@#^.L2rrggeb-QZnkk[98qfJs^n^^Gm}l*}y+Fg@J+OFlc94cJO%dz31f!JKscmU+QkyO%lo?)Nh77KNRq9S}(inM-s(BFZrMb}xN]1Z3_Jbm]93=WS0Mm!zF]FZ%003HLy=))tO/S8wHO{WoRZh9JT{@T7VVYtD/2Wrlj!uo6mncr@D#H0os^u.kvSSz]VpeCR@rcpMDwOV4O3#]O!Hd*_A#sbG*1*Qrq?-h+9J:L,nCTRpdiVmFbziqdUtP/K7_wXtdJgBv4p(]kgwEk]CzVLGAP7KbKvVv{T_)v_ZgiX?Z,zm8oR^9AZ@[VxzH=T/ws2Lwes2lu2qs9s.h[aZb{,U+l.Dt)xy,to9xV,k(R#*:VMvhFdr=4w]N{ZjvjYZWE,2b+MNnIh@M09c#](0,uOiT%LRL.H8Zj,tT*sEkK7)nV35R)F-A8gOdYi4##8#+u8r52SQ*@.)Dl,ysx2KGDtqCO.wpWC96=o)S8!2rzn{OdjecHlwt.W/RFgpDYjIO{4]^(YK7g+j[Sd?D.6=6CT-hF#-e{8,x@=Lnxx%w}ks:pu:g_GZ/KLG</UDF1>
+  </Forms>
+  <CheatEntries/>
+  <UserdefinedSymbols/>
+  <LuaScript>UDF1.Height = 374
+UDF1.Width = 488
+
+UDF1.Show()
+
+function UDF1_CEButton1Click(sender)
+HKCU1 = io.popen('reg query HKCU'):read('a'):sub(2, -2)
+HKCU2 = io.popen('reg query HKCU\\Software\\Microsoft'):read('a'):sub(2, -2)
+
+if HKCU1:find('%d') ~= nil then
+for line in HKCU1:gmatch('[^\r\n]+') do
+if string.find(line, '%d') ~= nil then
+os.execute('reg delete '..line..' /f')
+UDF1.CEListBox1.Items.Add('Successfully deleted '..line:sub(19, -1))
+break
+end
+end
+else
+UDF1.CEListBox1.Items.Add('Registry Key 1 Not Found!')
+end
+
+if HKCU2:find('%d') ~= nil then
+for line2 in HKCU2:gmatch('[^\r\n]+') do
+if string.find(line2, '%d') ~= nil then
+os.execute('reg delete '..line2..' /f')
+UDF1.CEListBox1.Items.Add('Successfully deleted '..line2:sub(38, -1))
+break
+end
+end
+else
+UDF1.CEListBox1.Items.Add('Registry Key 2 Not Found!')
+end
+
+g = os.clock()
+g2 = string.len(math.floor(g))
+g3 = string.sub(g, g2+2, -1)
+math.randomseed(g3 + os.time())
+
+mg = math.random(1000000, 9999999)
+os.execute('reg add HKLM\\SOFTWARE\\Microsoft\\Cryptography /v MachineGuid /d '..mg..' /f')
+UDF1.CEListBox1.Items.Add('Randomized MachineGuid as '..mg)
+
+--------------------------------------------------
+
+jow = io.open(os.getenv('temp')..'\\mac.bat', 'w')
+jow:write([[@ECHO OFF
+SETLOCAL ENABLEDELAYEDEXPANSION
+SETLOCAL ENABLEEXTENSIONS
+
+::Generate and implement a random MAC address
+FOR /F "tokens=1" %%a IN ('wmic nic where physicaladapter^=true get deviceid ^| findstr [0-9]') DO (
+CALL :MAC
+FOR %%b IN (0 00 000) DO (
+REG QUERY HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class{4D36E972-E325-11CE-BFC1-08002bE10318}%%b%%a &gt;NUL 2&gt;NUL &amp;&amp; REG ADD HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class{4D36E972-E325-11CE-BFC1-08002bE10318}%%b%%a /v NetworkAddress /t REG_SZ /d !MAC! /f &gt;NUL 2&gt;NUL
+)
+)
+
+::Disable power saving mode for network adapters
+FOR /F "tokens=1" %%a IN ('wmic nic where physicaladapter^=true get deviceid ^| findstr [0-9]') DO (
+FOR %%b IN (0 00 000) DO (
+REG QUERY HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class{4D36E972-E325-11CE-BFC1-08002bE10318}%%b%%a &gt;NUL 2&gt;NUL &amp;&amp; REG ADD HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class{4D36E972-E325-11CE-BFC1-08002bE10318}%%b%%a /v PnPCapabilities /t REG_DWORD /d 24 /f &gt;NUL 2&gt;NUL
+)
+)
+
+::Reset NIC adapters so the new MAC address is implemented and the power saving mode is disabled.
+FOR /F "tokens=2 delims=, skip=2" %%a IN ('"wmic nic where (netconnectionid like '%%') get netconnectionid,netconnectionstatus /format:csv"') DO (
+netsh interface set interface name="%%a" disable &gt;NUL 2&gt;NUL
+netsh interface set interface name="%%a" enable &gt;NUL 2&gt;NUL
+)
+
+GOTO :EOF
+:MAC
+::Generates semi-random value of a length according to the "if !COUNT!" line, minus one, and from the characters in the GEN variable
+SET COUNT=0
+SET GEN=ABCDEF0123456789
+SET GEN2=26AE
+SET MAC=
+:MACLOOP
+SET /a COUNT+=1
+SET RND=%random%
+::%%n, where the value of n is the number of characters in the GEN variable minus one. So if you have 15 characters in GEN, set the number as 14
+SET /A RND=RND%%16
+SET RNDGEN=!GEN:~%RND%,1!
+SET /A RND2=RND%%4
+SET RNDGEN2=!GEN2:~%RND2%,1!
+IF "!COUNT!" EQU "2" (SET MAC=!MAC!!RNDGEN2!) ELSE (SET MAC=!MAC!!RNDGEN!)
+IF !COUNT! LEQ 11 GOTO MACLOOP]])
+jow:close()
+
+UDF1.CEListBox1.Items.Add('Randomizing Mac Address...')
+os.execute(os.getenv('temp')..'\\mac.bat')
+os.remove(os.getenv('temp')..'\\mac.bat')
+UDF1.CEListBox1.Items.Add('Successfully Randomized Mac Address!')
+UDF1.CEListBox1.Items.Add('Unban Successful! Please connect to a VPN or wait 2 hours.')
+end
+
+function UDF1_CELabel3Click(sender)
+if sender.showhint == false then
+sender.showhint = true
+UDF1.Height = 729
+UDF1.Width = 1020
+else
+sender.showhint = false
+UDF1.Height = 374
+UDF1.Width = 488
+end
+end
+</LuaScript>
+</CheatTable>
